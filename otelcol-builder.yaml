@@ -1,0 +1,31 @@
+dist:
+  name: otelcol-custom
+  description: Local OpenTelemetry Collector binary
+  output_path: /tmp/dist
+  use_absolute_replace_paths: true
+
+exporters:
+  - gomod: go.opentelemetry.io/collector/exporter/otlphttpexporter v0.153.0
+  - gomod: github.com/open-telemetry/opentelemetry-collector-contrib/exporter/alibabacloudlogserviceexporter v0.153.0
+  - gomod: go.opentelemetry.io/collector/exporter/debugexporter v0.153.0
+
+receivers:
+  - gomod: go.opentelemetry.io/collector/receiver/otlpreceiver v0.153.0
+
+processors:
+  - gomod: go.opentelemetry.io/collector/processor/batchprocessor v0.153.0
+
+providers:
+  - gomod: go.opentelemetry.io/collector/confmap/provider/envprovider v1.35.0
+  - gomod: go.opentelemetry.io/collector/confmap/provider/fileprovider v1.35.0
+  - gomod: go.opentelemetry.io/collector/confmap/provider/httpprovider v1.35.0
+  - gomod: go.opentelemetry.io/collector/confmap/provider/httpsprovider v1.35.0
+  - gomod: go.opentelemetry.io/collector/confmap/provider/yamlprovider v1.35.0
+
+extensions:
+  - gomod: github.com/open-telemetry/opentelemetry-collector-contrib/extension/httpprovisionerextension v0.153.0
+#    import: github.com/makrstic/opentelemetry-collector-contrib/extension/httpprovisionerextension
+    path: ./extension/httpprovisionerextension
+
+#replaces:
+#  - github.com/open-telemetry/opentelemetry-collector-contrib/extension/httpprovisionerextension => ./extension/httpprovisionerextension
