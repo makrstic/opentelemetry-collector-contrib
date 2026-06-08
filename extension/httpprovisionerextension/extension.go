@@ -31,6 +31,7 @@ func (e *provisionerExtension) Start(ctx context.Context, host component.Host) e
 	)
 
 	data, err := os.ReadFile(e.local_config_path)
+	e.logger.Info("Local config file content: " + string(data))
 	if err != nil {
 		e.logger.Warn("Failed to read local config file" + e.local_config_path)
 		return nil
@@ -57,7 +58,8 @@ func (e *provisionerExtension) poll() {
 	)
 
 	// Download the config file from the HTTP Provisioner
-	response, err := http.Get(e.endpoint)
+	// response, err := http.Get(e.endpoint)
+	response, err := http.Get("http://127.0.0.1:8080/api/config/default")
 	if err != nil {
 		e.logger.Warn("Failed to download config file from HTTP Provisioner: " + err.Error())
 		return
@@ -70,6 +72,7 @@ func (e *provisionerExtension) poll() {
 	}
 
 	data, err := io.ReadAll(response.Body)
+	e.logger.Info("Downloaded config file content: " + string(data))
 	if err != nil {
 		e.logger.Warn("Failed to read response body from HTTP Provisioner: " + err.Error())
 		return

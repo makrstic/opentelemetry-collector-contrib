@@ -1,12 +1,13 @@
 package httpprovisionerextension
 
 import (
-	"go.opentelemetry.io/collector/component"
 	"time"
+
+	"go.opentelemetry.io/collector/component"
 )
 
 const (
-	DefaultEndpoint = "http://127.0.0.1:8080"
+	DefaultEndpoint = "http://127.0.0.1:8080/api/config/default"
 	DefaultPollInterval = 45 * time.Minute
 	DefaultConfigPath = "/etc/otel/config.yaml"
 )
