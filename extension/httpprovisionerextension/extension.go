@@ -31,7 +31,6 @@ func (e *provisionerExtension) Start(ctx context.Context, host component.Host) e
 	)
 
 	data, err := os.ReadFile(e.local_config_path)
-	e.logger.Info("Local config file content: " + string(data))
 	if err != nil {
 		e.logger.Warn("Failed to read local config file" + e.local_config_path)
 		return nil
@@ -58,8 +57,7 @@ func (e *provisionerExtension) poll() {
 	)
 
 	// Download the config file from the HTTP Provisioner
-	// response, err := http.Get(e.endpoint)
-	response, err := http.Get("http://127.0.0.1:8080/api/config/default")
+	response, err := http.Get(e.endpoint)
 	if err != nil {
 		e.logger.Warn("Failed to download config file from HTTP Provisioner: " + err.Error())
 		return
@@ -72,7 +70,6 @@ func (e *provisionerExtension) poll() {
 	}
 
 	data, err := io.ReadAll(response.Body)
-	e.logger.Info("Downloaded config file content: " + string(data))
 	if err != nil {
 		e.logger.Warn("Failed to read response body from HTTP Provisioner: " + err.Error())
 		return
@@ -87,7 +84,39 @@ func (e *provisionerExtension) poll() {
 		e.logger.Info("Config file has not changed, no action needed")
 	}
 	// If they are different, update the local config file and reload the collector
-	// If they are the same, do nothing
+
+	// Make backup of the current config file
+	backup_path := e.local_config_path + ".bak"
+
+	in, err := os.Open(e.local_config_path)
+	if err != nil {
+		e.logger.Warn("Failed to open local config file for backup: " + err.Error())
+		return
+	}
+	defer in.Close()
+
+	out, err := os.Create(backup_path)
+	if err != nil {
+		e.logger.Warn("Failed to create backup config file: " + err.Error())
+		return
+	}
+	defer out.Close()
+
+	if _, err = io.Copy(out, in); err != nil {
+		e.logger.Warn("Failed to copy local config file to backup: " + err.Error())
+		return
+	}
+
+	// Write the new config file
+	err = os.WriteFile(e.local_config_path, data, 0644)
+	if err != nil {
+		e.logger.Warn("Failed to write new config file: " + err.Error())
+		return
+	}
+
+	// Reload the Collector
+	e.logger.Info("Sending SIGHUP to the Collector to reload the config")
+	//os.Signal(os.Interrupt).Notify(make(chan os.Signal, 1))
 }
 
 func md5sum(data []byte) string {
